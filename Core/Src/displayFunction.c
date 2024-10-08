@@ -26,54 +26,44 @@ static uint32_t hh = 0;
 static uint32_t mm = 0;
 static uint32_t ss = 0;
 
-
-
 /* @brief initialize the screen 
- * @param made from INITIALISATION EXAMPLE in data sheet for EA DOGS104-A
- * 
+ * Used data sheet for EA DOGS104-A
  */
-
 void display(void)
-
 {
 	display_init();
-	set_time();				// passed, can write in the "screen" mode on mac, have to update how it is presented on the screen
+	set_time(); // passed, can write in the "screen" mode on mac. 
 	while(1)
 	{
-
-		write_time();      // passed
-		set_dimmer();      // passed
-
+		write_time();  // passed
+		set_dimmer();  // passed
 	}
-
 }
-
 
 void display_init(void)
 {
 	SET_CS;
+	
 	HAL_Delay(10);
+	
 	RESET_CS;
-
+	
 	display_reset();
 	HAL_Delay(10);
-
-	display_send_inst(0x0F);   	// Display on
-	display_send_inst(0x3A);   	// 8 bit datalength extension Bit RE = 0; REV = 0
-	display_send_inst(0x09);   	// 4 line display
-	display_send_inst(0x06);	// bottom view
-	display_send_inst(0x1E);    // BS1 = 1
-	display_send_inst(0x39);	// 8 bit datalength extension Bit RE = 0, IS = =
-	display_send_inst(0x1B);	// BSO = 1 -> Bias = 1/6
-    display_send_inst(0x6E);    // Devider in and set value
-    display_send_inst(0x56); 	// Booster on and set contrast (DB1 = C5, DB = C4)
-    display_send_inst(0x7A);    // Set contrast (DB3 - DB0, C3 - C0)
-    display_send_inst(0x38);    // 8 bit data length extension Bit RE = 0, IS = 0
-	display_send_inst(0x01);    // clear display
-
-
+	display_send_inst(0x0F); // Display on
+	display_send_inst(0x3A); // 8 bit datalength extension Bit RE = 0; REV = 0
+	display_send_inst(0x09); // 4 line display
+	display_send_inst(0x06); // bottom view
+	display_send_inst(0x1E); // BS1 = 1
+	display_send_inst(0x39); // 8 bit datalength extension Bit RE = 0, IS = =
+	display_send_inst(0x1B); // BSO = 1 -> Bias = 1/6
+    	display_send_inst(0x6E); // Devider in and set value
+    	display_send_inst(0x56); // Booster on and set contrast (DB1 = C5, DB = C4)
+    	display_send_inst(0x7A); // Set contrast (DB3 - DB0, C3 - C0)
+    	display_send_inst(0x38); // 8 bit data length extension Bit RE = 0, IS = 0
+	display_send_inst(0x01); // clear display
+	
 	SET_CS;
-
 }
 
 /* @brief send instruction to the screen
@@ -95,34 +85,34 @@ void display_send_inst(uint8_t instruction)
 }
 
 /* @brief set_time, sets the time from the screen function in mac or putty on windows.
- * @param takes in hours, minutes, and second.
- * @more sets time in RTC (real time clock)
+ * takes in hours, minutes, and second.
+ * sets time in RTC (real time clock)
  */
 void set_time(void){
 
 	uint8_t *buff = "\n write hours\n\r";
-	HAL_UART_Transmit(&huart5, (uint8_t *)buff, 17, 5000);      			// sends to the screen
-	while(HAL_UART_Receive(&huart5, (uint8_t*)&hh, 2, 1000) != HAL_OK); 	// receive from screen input of two bits and stores in variable hh
+	HAL_UART_Transmit(&huart5, (uint8_t *)buff, 17, 5000); // sends to the screen
+	while(HAL_UART_Receive(&huart5, (uint8_t*)&hh, 2, 1000) != HAL_OK); // receive from screen input of two bits and stores in variable hh
 
 	buff = "write minutes\n\r";
-    HAL_UART_Transmit(&huart5, (uint8_t *)buff, 18, 5000);
-    while(HAL_UART_Receive(&huart5, (uint8_t*)&mm, 2, 1000) != HAL_OK);   	// receive from screen input of two bits and stores in variable mm
+    	HAL_UART_Transmit(&huart5, (uint8_t *)buff, 18, 5000);
+    	while(HAL_UART_Receive(&huart5, (uint8_t*)&mm, 2, 1000) != HAL_OK); // receive from screen input of two bits and stores in variable mm
 
-    buff = "write seconds\n\r";
-    HAL_UART_Transmit(&huart5, (uint8_t *)buff, 18, 5000);
-    while(HAL_UART_Receive(&huart5, (uint8_t*)&ss, 2, 1000) != HAL_OK);		// receive from screen input of two bits and stores in variable ss
-
-
-    buff = "transfer is done!\n\r";
-    HAL_UART_Transmit(&huart5, (uint8_t *)buff, 20, 5000);
+    	buff = "write seconds\n\r";
+    	HAL_UART_Transmit(&huart5, (uint8_t *)buff, 18, 5000);
+    	while(HAL_UART_Receive(&huart5, (uint8_t*)&ss, 2, 1000) != HAL_OK); // receive from screen input of two bits and stores in variable ss
 
 
-    sscanf((uint8_t *)&hh, "%hhu", &sTime.Hours);							//stores new input value hh in adress of &sTime.Hours
-    sscanf((uint8_t *)&mm, "%hhu", &sTime.Minutes);							//stores new input value mm in adress of &sTime.Minutes
-    sscanf((uint8_t *)&ss, "%hhu", &sTime.Seconds);							//stores new input value ss in adress of &sTime.Seconds
+    	buff = "transfer is done!\n\r";
+    	HAL_UART_Transmit(&huart5, (uint8_t *)buff, 20, 5000);
 
-    HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN); 						// Sets date
-    HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);							// Sets time
+
+    	sscanf((uint8_t *)&hh, "%hhu", &sTime.Hours); //stores new input value hh in adress of &sTime.Hours
+    	sscanf((uint8_t *)&mm, "%hhu", &sTime.Minutes);	//stores new input value mm in adress of &sTime.Minutes
+    	sscanf((uint8_t *)&ss, "%hhu", &sTime.Seconds);	//stores new input value ss in adress of &sTime.Seconds
+
+    	HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN); // Sets date
+    	HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN); // Sets time
 
 }
 
@@ -203,7 +193,7 @@ void display_string(uint8_t* string, uint8_t row)
 }
 
 /* @brief display_char
- * @param sends LSB first which tells what instruction should be performed.
+ * sends LSB first which tells what instruction should be performed.
  */
 void display_char(uint8_t chars)
 {
@@ -229,7 +219,7 @@ void set_dimmer()
 }
 
 /* @brief get adc
- * @param get the value of the adc. Has to be in a constant while loop or called by rtos every ms to work.
+ * get the value of the adc. Has to be in a constant while loop or called by rtos every ms to work.
  */
 uint32_t get_adc()
 {
